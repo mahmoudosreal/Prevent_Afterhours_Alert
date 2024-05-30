@@ -1,0 +1,23 @@
+//@version=5
+indicator("Prevent Afterhours Alert", overlay = true)
+
+// Input for trading session hours
+preMarket = input.session(defval = "0400-0930", title = "Pre-Market")
+afterMarket = input.session(defval = "1600-2000", title = "After-Market")
+
+// Function to check session validity
+Insession(pSession) => na(time(timeframe.period, pSession)) == false
+
+// Determine if current time is in pre-market or after-market
+isAfterClose = Insession(afterMarket)
+isPreOpen = Insession(preMarket)
+isAfterHours = isPreOpen or isAfterClose
+
+// Visual indication for after hours
+bgcolor(isAfterHours ? color.white : na)
+
+// Define alert trigger condition
+alertTrigger = close >= open // just for example
+
+// Set alert condition outside after hours
+alertcondition(alertTrigger and not isAfterHours, title = "Alert Me", message = "Message Me")
